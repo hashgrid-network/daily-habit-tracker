@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Done Hai! Habit Tracker</title>
+  <title>Daily Habit & Goal Tracker</title>
   <style>
     :root {
       --bg: #090d16;
@@ -30,22 +30,27 @@
     .widget-card {
       background: var(--card-bg);
       width: 100%;
-      max-width: 420px;
+      max-width: 430px;
       border-radius: 20px;
       border: 1px solid var(--border);
       padding: 22px;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
     }
-    .header {
+    .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
-    .header h1 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
+    .lang-select {
+      background: #090d16;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      outline: none;
+      cursor: pointer;
     }
     .badge {
       background: var(--accent-glow);
@@ -55,6 +60,12 @@
       border-radius: 20px;
       font-size: 0.75rem;
       font-weight: 600;
+    }
+    .header h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
     }
     .progress-box {
       margin-bottom: 18px;
@@ -107,7 +118,7 @@
       align-items: center;
       gap: 12px;
       cursor: pointer;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       width: 100%;
       user-select: none;
     }
@@ -144,7 +155,6 @@
       font-size: 1.2rem;
       cursor: pointer;
       padding-left: 8px;
-      line-height: 1;
     }
     .add-box {
       display: flex;
@@ -187,9 +197,19 @@
 <body>
 
 <div class="widget-card">
-  <div class="header">
-    <h1>🎯 Done Hai! Routine</h1>
+  <div class="top-bar">
+    <select class="lang-select" id="langSelect" onchange="changeLanguage(this.value)">
+      <option value="en">🌐 English (US)</option>
+      <option value="es">🇪🇸 Español</option>
+      <option value="fr">🇫🇷 Français</option>
+      <option value="de">🇩🇪 Deutsch</option>
+      <option value="hi">🇮🇳 हिन्दी</option>
+    </select>
     <span class="badge" id="streakBadge">⚡ Ready</span>
+  </div>
+
+  <div class="header">
+    <h1 id="titleText">🎯 Daily Routine OS</h1>
   </div>
 
   <div class="progress-box">
@@ -206,37 +226,154 @@
 
   <div class="add-box">
     <input type="text" id="customInput" placeholder="+ Add your custom goal...">
-    <button onclick="addCustomGoal()">Add</button>
+    <button id="addBtn" onclick="addCustomGoal()">Add</button>
   </div>
 
-  <span class="reset-link" onclick="resetToday()">Reset for a New Day</span>
+  <span class="reset-link" id="resetBtn" onclick="resetToday()">Reset for a New Day</span>
 </div>
 
 <script>
-  const defaultGoals = [
-    { id: 1, text: "💧 2-3L Pani & Healthy Diet", done: false, isCustom: false },
-    { id: 2, text: "🏃‍♂️ 30 Min Workout / Movement", done: false, isCustom: false },
-    { id: 3, text: "💼 Aaj Ka Main Kaam (Deep Work)", done: false, isCustom: false },
-    { id: 4, text: "🤝 Client Outreach / Networking", done: false, isCustom: false },
-    { id: 5, text: "💊 Dawai / Daily Supplements", done: false, isCustom: false },
-    { id: 6, text: "📖 15 Min Reading / Mindset", done: false, isCustom: false }
-  ];
+  const translations = {
+    en: {
+      title: "🎯 Daily Routine OS",
+      ready: "⚡ Ready",
+      completedBadge: "🔥 100% Done!",
+      keepGoing: "⚡ In Progress",
+      placeholder: "+ Add custom goal...",
+      add: "Add",
+      reset: "Reset for a New Day",
+      resetConfirm: "Reset today's progress?",
+      goals: [
+        "💧 2-3L Hydration & Healthy Meals",
+        "🏃‍♂️ 30 Min Daily Workout / Movement",
+        "💼 Main Focus Task (Deep Work)",
+        "🤝 Client Outreach / Networking",
+        "💊 Daily Vitamins / Medications",
+        "📖 15 Min Reading / Mindset"
+      ]
+    },
+    es: {
+      title: "🎯 Rutina Diaria OS",
+      ready: "⚡ Listo",
+      completedBadge: "🔥 ¡100% Hecho!",
+      keepGoing: "⚡ En Progreso",
+      placeholder: "+ Añadir meta personal...",
+      add: "Añadir",
+      reset: "Reiniciar para un nuevo día",
+      resetConfirm: "¿Reiniciar el progreso de hoy?",
+      goals: [
+        "💧 2-3L Hidratación y Comida Sana",
+        "🏃‍♂️ 30 Min Ejercicio / Movimiento",
+        "💼 Tarea Principal (Trabajo Profundo)",
+        "🤝 Contacto con Clientes / Redes",
+        "💊 Vitaminas / Medicamentos",
+        "📖 15 Min Lectura / Mentalidad"
+      ]
+    },
+    fr: {
+      title: "🎯 Routine Quotidienne OS",
+      ready: "⚡ Prêt",
+      completedBadge: "🔥 100% Terminé!",
+      keepGoing: "⚡ En Cours",
+      placeholder: "+ Ajouter un objectif...",
+      add: "Ajouter",
+      reset: "Réinitialiser pour un nouveau jour",
+      resetConfirm: "Réinitialiser le progrès d'aujourd'hui?",
+      goals: [
+        "💧 2-3L Hydratation & Repas Sain",
+        "🏃‍♂️ 30 Min Entraînement / Sport",
+        "💼 Tâche Principale (Focus)",
+        "🤝 Contact Clients / Réseautage",
+        "💊 Vitamines / Médicaments",
+        "📖 15 Min Lecture / Développement"
+      ]
+    },
+    de: {
+      title: "🎯 Tagesroutine OS",
+      ready: "⚡ Bereit",
+      completedBadge: "🔥 100% Erledigt!",
+      keepGoing: "⚡ In Bearbeitung",
+      placeholder: "+ Eigenes Ziel hinzufügen...",
+      add: "Neu",
+      reset: "Für neuen Tag zurücksetzen",
+      resetConfirm: "Fortschritt von heute zurücksetzen?",
+      goals: [
+        "💧 2-3L Wasser & Gesunde Mahlzeiten",
+        "🏃‍♂️ 30 Min Training / Bewegung",
+        "💼 Hauptaufgabe (Fokusarbeit)",
+        "🤝 Kundenkontakt / Networking",
+        "💊 Vitamine / Medikamente",
+        "📖 15 Min Lesen / Mindset"
+      ]
+    },
+    hi: {
+      title: "🎯 Daily Routine OS",
+      ready: "⚡ तैयार",
+      completedBadge: "🔥 100% Done Hai!",
+      keepGoing: "⚡ चालू है",
+      placeholder: "+ अपना कस्टम गोल लिखें...",
+      add: "जोड़ें",
+      reset: "नए दिन के लिए रीसेट करें",
+      resetConfirm: "क्या आप आज के चेक रीसेट करना चाहते हैं?",
+      goals: [
+        "💧 2-3L पानी और स्वस्थ आहार",
+        "🏃‍♂️ 30 मिनट वर्कआउट / व्यायाम",
+        "💼 आज का मुख्य काम (Deep Work)",
+        "🤝 क्लाइंट आउटरीच / नेटवर्किंग",
+        "💊 दैनिक दवाइयां / सप्लीमेंट्स",
+        "📖 15 मिनट पढ़ना / माइंडसेट"
+      ]
+    }
+  };
 
-  let goals = JSON.parse(localStorage.getItem('my_daily_habits')) || defaultGoals;
+  let currentLang = localStorage.getItem('widget_lang') || 'en';
+  let userGoals = JSON.parse(localStorage.getItem('my_multilang_habits'));
 
-  function renderGoals() {
-    localStorage.setItem('my_daily_habits', JSON.stringify(goals));
+  function initGoals() {
+    if (!userGoals) {
+      userGoals = translations[currentLang].goals.map((text, i) => ({
+        id: i + 1,
+        text: text,
+        done: false,
+        isCustom: false
+      }));
+    }
+  }
+
+  function changeLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('widget_lang', lang);
+    const langData = translations[lang];
+
+    // Update preset goals to new language while preserving checkbox state
+    userGoals = userGoals.map((g, index) => {
+      if (!g.isCustom && langData.goals[index]) {
+        return { ...g, text: langData.goals[index] };
+      }
+      return g;
+    });
+
+    render();
+  }
+
+  function render() {
+    localStorage.setItem('my_multilang_habits', JSON.stringify(userGoals));
+    const langData = translations[currentLang];
+
+    document.getElementById('langSelect').value = currentLang;
+    document.getElementById('titleText').innerText = langData.title;
+    document.getElementById('customInput').placeholder = langData.placeholder;
+    document.getElementById('addBtn').innerText = langData.add;
+    document.getElementById('resetBtn').innerText = langData.reset;
+
     const listEl = document.getElementById('goalList');
     listEl.innerHTML = '';
-
     let completedCount = 0;
 
-    goals.forEach(goal => {
+    userGoals.forEach(goal => {
       if (goal.done) completedCount++;
-
       const li = document.createElement('li');
       li.className = `goal-item ${goal.done ? 'done' : ''}`;
-      
       li.innerHTML = `
         <label>
           <input type="checkbox" ${goal.done ? 'checked' : ''} onchange="toggleGoal(${goal.id})">
@@ -247,51 +384,55 @@
       listEl.appendChild(li);
     });
 
-    const percent = goals.length === 0 ? 0 : Math.round((completedCount / goals.length) * 100);
+    const percent = userGoals.length === 0 ? 0 : Math.round((completedCount / userGoals.length) * 100);
     document.getElementById('progressBar').style.width = percent + '%';
-    document.getElementById('progressText').innerText = percent + '% Completed';
-    document.getElementById('ratioText').innerText = `${completedCount}/${goals.length} Done`;
+    document.getElementById('progressText').innerText = percent + '% ' + (currentLang === 'hi' ? 'पूरा हुआ' : 'Completed');
+    document.getElementById('ratioText').innerText = `${completedCount}/${userGoals.length} Done`;
 
     const badge = document.getElementById('streakBadge');
     if (percent === 100) {
-      badge.innerText = '🔥 100% Done Hai!';
+      badge.innerText = langData.completedBadge;
       badge.style.background = '#10b981';
       badge.style.color = '#000';
+    } else if (completedCount > 0) {
+      badge.innerText = langData.keepGoing;
+      badge.style.background = 'rgba(16, 185, 129, 0.25)';
+      badge.style.color = '#10b981';
     } else {
-      badge.innerText = '⚡ Keep Going';
+      badge.innerText = langData.ready;
       badge.style.background = 'rgba(16, 185, 129, 0.25)';
       badge.style.color = '#10b981';
     }
   }
 
   function toggleGoal(id) {
-    goals = goals.map(g => g.id === id ? { ...g, done: !g.done } : g);
-    renderGoals();
+    userGoals = userGoals.map(g => g.id === id ? { ...g, done: !g.done } : g);
+    render();
   }
 
   function addCustomGoal() {
     const input = document.getElementById('customInput');
     const val = input.value.trim();
     if (!val) return;
-
-    goals.push({ id: Date.now(), text: "✏️ " + val, done: false, isCustom: true });
+    userGoals.push({ id: Date.now(), text: "✏️ " + val, done: false, isCustom: true });
     input.value = '';
-    renderGoals();
+    render();
   }
 
   function deleteGoal(id) {
-    goals = goals.filter(g => g.id !== id);
-    renderGoals();
+    userGoals = userGoals.filter(g => g.id !== id);
+    render();
   }
 
   function resetToday() {
-    if(confirm('Kya aap aaj ke checks reset karna chahte hain?')) {
-      goals = goals.map(g => ({ ...g, done: false }));
-      renderGoals();
+    if(confirm(translations[currentLang].resetConfirm)) {
+      userGoals = userGoals.map(g => ({ ...g, done: false }));
+      render();
     }
   }
 
-  renderGoals();
+  initGoals();
+  render();
 </script>
 </body>
 </html>
